@@ -149,14 +149,14 @@ module M24AA64 (A0, A1, A2, WP, SDA, SCL, RESET);
    initial begin
       `ifdef VCC_1_7V_TO_2_5V
          tAA = 3500;                // SCL to SDA output delay
-         tWC = 5000000;             // memory write cycle time
+         tWC = 500;             // memory write cycle time
       `else
       `ifdef VCC_2_5V_TO_5_5V
          tAA = 900;                 // SCL to SDA output delay
-         tWC = 5000000;             // memory write cycle time
+         tWC = 500;             // memory write cycle time
       `else
          tAA = 900;                 // SCL to SDA output delay
-         tWC = 5000000;             // memory write cycle time
+         tWC = 500;             // memory write cycle time
       `endif
       `endif
    end
