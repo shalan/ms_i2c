@@ -70,7 +70,6 @@ module APB2I2C #
     localparam[15:0] RIS_REG_ADDR = 16'h0f04;
     localparam[15:0] IM_REG_ADDR = 16'h0f08;
     localparam[15:0] MIS_REG_ADDR = 16'h0f0c;
-    localparam[15:0] ICR_REG_ADDR = 16'h0f00;
 
     wire        clk         = PCLK;
     wire        rst         = ~PRESETn;
@@ -85,25 +84,10 @@ module APB2I2C #
 
     wire [15:0] flags;
     reg [8:0]       IM_REG;
-    reg [8:0]      RIS_REG;
+    wire [8:0]      RIS_REG = {flags[15:8], flags[3]};
     wire [8:0]      MIS_REG = RIS_REG & IM_REG;
-	reg	[8:0]	ICR_REG;
     reg apb_wr_ack;
     reg apb_rd_ack;
-	always @(posedge PCLK or negedge PRESETn)
-		if(~PRESETn) 
-            RIS_REG <= 9'd0;
-		else begin
-			if(flags[3]) RIS_REG[0] <= 1'b1; else if(ICR_REG[0]) RIS_REG[0] <= 1'b0;
-			if(flags[8]) RIS_REG[1] <= 1'b1; else if(ICR_REG[1]) RIS_REG[1] <= 1'b0;
-            if(flags[9]) RIS_REG[2] <= 1'b1; else if(ICR_REG[2]) RIS_REG[2] <= 1'b0;
-            if(flags[10]) RIS_REG[3] <= 1'b1; else if(ICR_REG[3]) RIS_REG[3] <= 1'b0;
-            if(flags[11]) RIS_REG[4] <= 1'b1; else if(ICR_REG[4]) RIS_REG[4] <= 1'b0;
-            if(flags[12]) RIS_REG[5] <= 1'b1; else if(ICR_REG[5]) RIS_REG[5] <= 1'b0;
-            if(flags[13]) RIS_REG[6] <= 1'b1; else if(ICR_REG[6]) RIS_REG[6] <= 1'b0;
-            if(flags[14]) RIS_REG[7] <= 1'b1; else if(ICR_REG[7]) RIS_REG[7] <= 1'b0;
-            if(flags[15]) RIS_REG[8] <= 1'b1; else if(ICR_REG[8]) RIS_REG[8] <= 1'b0;
-		end
 
     assign PREADY = wbs_ack_o | apb_wr_ack | apb_rd_ack;
     assign PRDATA = (PADDR[15:8] != 8'h0F)          ? {16'b0, wbs_dat_o}:
