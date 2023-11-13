@@ -20,9 +20,18 @@
 `default_nettype	    none
 
 `define		APB_BLOCK(name, init)		always @(posedge PCLK or negedge PRESETn) if(~PRESETn) name <= init;
-`define		APB_REG(name, init, size)	`APB_BLOCK(name, init) else if(apb_we & (PADDR[15:0]==``name``_ADDR)) name <= PWDATA[``size``-1:0];
+`define		APB_REG(name, init, size)	`APB_BLOCK(name, init) \
+                                        else if(apb_we & (PADDR[15:0]==``name``_ADDR)) begin \
+                                            name <= PWDATA[``size``-1:0]; \
+                                            apb_wr_ack <= 1; \
+                                        end else if(apb_valid & (PADDR[15:0]==``name``_ADDR)) \
+                                            apb_rd_ack <= 1; \
+                                        else begin \
+                                            apb_wr_ack <= 0; \
+                                            apb_rd_ack <= 0; \
+                                        end
 
-module i2c_master_apb #
+module APB2I2C #
 (
     parameter DEFAULT_PRESCALE = 1,
     parameter FIXED_PRESCALE = 0,
@@ -48,14 +57,14 @@ module i2c_master_apb #
     output wire [31:0]  PRDATA,
 
     // I2C interface
-    input  wire        i2c_scl_i,
-    output wire        i2c_scl_o,
-    output wire        i2c_scl_t,
-    input  wire        i2c_sda_i,
-    output wire        i2c_sda_o,
-    output wire        i2c_sda_t,
+    input  wire        scl_i,
+    output wire        scl_o,
+    output wire        scl_oen_o,
+    input  wire        sda_i,
+    output wire        sda_o,
+    output wire        sda_oen_o,
 
-    output wire        IRQ
+    output wire        i2c_irq
 );
 
     localparam[15:0] RIS_REG_ADDR = 16'h0f04;
@@ -74,8 +83,13 @@ module i2c_master_apb #
     wire        wbs_cyc_i   = (PADDR[15:8] != 8'h0F) & PSEL;
 
     wire [15:0] flags;
+    reg [8:0]       IM_REG;
+    wire [8:0]      RIS_REG = {flags[15:8], flags[3]};
+    wire [8:0]      MIS_REG = RIS_REG & IM_REG;
+    reg apb_wr_ack;
+    reg apb_rd_ack;
 
-    assign PREADY = wbs_ack_o;
+    assign PREADY = wbs_ack_o | apb_wr_ack | apb_rd_ack;
     assign PRDATA = (PADDR[15:8] != 8'h0F)          ? {16'b0, wbs_dat_o}:
                     (PADDR[15:0] == RIS_REG_ADDR)   ? {23'b0, RIS_REG}  :
                     (PADDR[15:0] == MIS_REG_ADDR)   ? {23'b0, MIS_REG}  :
@@ -110,12 +124,12 @@ module i2c_master_apb #
         .wbs_cyc_i(wbs_cyc_i),   // CYC_I cycle input
 
         // I2C interface
-        .i2c_scl_i(i2c_scl_i),
-        .i2c_scl_o(i2c_scl_o),
-        .i2c_scl_t(i2c_scl_t),
-        .i2c_sda_i(i2c_sda_i),
-        .i2c_sda_o(i2c_sda_o),
-        .i2c_sda_t(i2c_sda_t),
+        .i2c_scl_i(scl_i),
+        .i2c_scl_o(scl_o),
+        .i2c_scl_t(scl_oen_o),
+        .i2c_sda_i(sda_i),
+        .i2c_sda_o(sda_o),
+        .i2c_sda_t(sda_oen_o),
 
         .flags(flags)
     );
@@ -125,13 +139,10 @@ module i2c_master_apb #
     wire		    apb_valid	= PSEL & PENABLE;
 	wire		    apb_we	= PWRITE & apb_valid;
     
-    wire [8:0]      RIS_REG = {flags[15:8], flags[3]};
-    reg [8:0]       IM_REG;
-    wire [8:0]      MIS_REG = RIS_REG & IM_REG;
 
     `APB_REG(IM_REG, 0, 9)
 
-    assign IRQ = |MIS_REG;
+    assign i2c_irq = |MIS_REG;
 
 
 endmodule

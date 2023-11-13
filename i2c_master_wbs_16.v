@@ -314,7 +314,8 @@ wire write_fifo_empty = ~data_in_valid_int;
 wire write_fifo_full = ~data_in_ready;
 wire read_fifo_empty = ~data_out_valid;
 wire read_fifo_full = ~data_out_ready_int;
-
+wire data_in_valid;
+wire data_in_last;
 reg cmd_fifo_overflow_reg = 1'b0, cmd_fifo_overflow_next;
 reg write_fifo_overflow_reg = 1'b0, write_fifo_overflow_next;
 
