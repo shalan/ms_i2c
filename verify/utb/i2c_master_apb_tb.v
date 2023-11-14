@@ -43,7 +43,7 @@ module i2c_master_apb_tb;
     tri1     sda_pin;
 
     assign  scl_pin = ~i2c_scl_o ? 1'b0 : 1'bz;
-    assign  scl_i = scl_pin;
+    assign  i2c_scl_i = scl_pin;
     assign  sda_pin = ~i2c_sda_o ? 1'b0 : 1'bz;
     assign  i2c_sda_i = sda_pin;
     
