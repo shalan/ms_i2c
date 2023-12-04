@@ -1,0 +1,96 @@
+{
+    "info": {
+        "name": "I2C_wrapper",
+        "description": "I2C master controller with an APB interface",
+        "repo": "https://github.com/shalan/ms_i2c",
+        "owner": "Mohamed Shalan",
+        "license": "APACHE 2.0",
+        "author": "Mohamed Shalan",
+        "email": "mshalan@aucegypt.edu",
+        "version": "v1.0.0",
+        "date": "11-12-2023",
+        "category": "digital",
+        "tags": [
+            "peripheral",
+            "comm",
+            "i2c"
+        ],
+        "bus": [
+            "APB"
+        ],
+        "type": "soft",
+        "status": "verified",
+        "cell_count": "2344",
+        "width": "0.0",
+        "height": "0.0",
+        "technology": "n/a",
+        "clock_freq_mhz": "50",
+        "supply_voltage": [
+            "n/a"
+        ]
+    },
+
+    "interface": [
+        {
+            "name": "scl_i",
+            "port": "scl_i",
+            "dir": "input",
+            "size": "1"
+        },
+        {
+            "name": "scl_o",
+            "port": "scl_o",
+            "dir": "output",
+            "size": "1"
+        },
+        {
+            "name": "scl_oen_o",
+            "port": "scl_oen_o",
+            "dir": "output",
+            "size": "1"
+        },
+        {
+            "name": "sda_i",
+            "port": "sda_i",
+            "dir": "input",
+            "size": "1"
+        },
+        {
+            "name": "sda_o",
+            "port": "sda_o",
+            "dir": "output",
+            "size": "1"
+        },
+        {
+            "name": "sda_oen_o",
+            "port": "sda_oen_o",
+            "dir": "output",
+            "size": "1"
+        },
+        {
+            "name": "i2c_irq",
+            "port": "i2c_irq",
+            "dir": "output",
+            "size": "1"
+        }
+    ],   
+    "ports":[
+      {"name": "clk", "size": "1", "dir":"input"},
+      {"name": "rst", "size": "1", "dir":"input"},
+      {"name": "wbs_adr_i", "size": "3", "dir":"input"},
+      {"name": "wbs_dat_i", "size": "16", "dir":"input"},
+      {"name": "wbs_dat_o", "size": "16", "dir":"output"},
+      {"name": "wbs_we_i", "size": "1", "dir":"input"},
+      {"name": "wbs_sel_i", "size": "2", "dir":"input"},
+      {"name": "wbs_stb_i", "size": "1", "dir":"input"},
+      {"name": "wbs_ack_o", "size": "1", "dir":"output"},
+      {"name": "wbs_cyc_i", "size": "1", "dir":"input"},
+      {"name": "i2c_scl_i", "size": "1", "dir":"input"},
+      {"name": "i2c_scl_o", "size": "1", "dir":"output"},
+      {"name": "i2c_scl_t", "size": "1", "dir":"output"},
+      {"name": "i2c_sda_i", "size": "1", "dir":"input"},
+      {"name": "i2c_sda_o", "size": "1", "dir":"output"},
+      {"name": "i2c_sda_t", "size": "1", "dir":"output"},
+      {"name": "flags", "size": "16", "dir":"output"}
+    ]
+}
