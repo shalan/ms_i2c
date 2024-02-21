@@ -19,8 +19,7 @@
 `timescale			    1ns/1ns
 `default_nettype	    none
 
-module APB2I2C #
-(
+module APB2I2C # (
     parameter DEFAULT_PRESCALE = 1,
     parameter FIXED_PRESCALE = 0,
     parameter CMD_FIFO = 1,
@@ -29,8 +28,7 @@ module APB2I2C #
     parameter WRITE_FIFO_DEPTH = 16,
     parameter READ_FIFO = 1,
     parameter READ_FIFO_DEPTH = 16
-)
-(
+) (
     input wire          PCLK,
     input wire          PRESETn,
  
@@ -45,37 +43,40 @@ module APB2I2C #
     output wire [31:0]  PRDATA,
 
     // I2C interface
-    input  wire        scl_i,
-    output wire        scl_o,
-    output wire        scl_oen_o,
-    input  wire        sda_i,
-    output wire        sda_o,
-    output wire        sda_oen_o,
+    input  wire         scl_i,
+    output wire         scl_o,
+    output wire         scl_oen_o,
+    input  wire         sda_i,
+    output wire         sda_o,
+    output wire         sda_oen_o,
 
-    output wire        i2c_irq
+    output wire         i2c_irq
 );
 
     localparam[15:0] RIS_REG_ADDR = 16'h0f04;
     localparam[15:0] IM_REG_ADDR = 16'h0f08;
     localparam[15:0] MIS_REG_ADDR = 16'h0f0c;
 
-    wire        clk         = PCLK;
-    wire        rst         = ~PRESETn;
-    wire  [2:0] wbs_adr_i   = PADDR[3:1];
-    wire [15:0] wbs_dat_i   = PWDATA[15:0];
-    wire [15:0] wbs_dat_o;
-    wire        wbs_we_i    = PWRITE; 
-    wire  [1:0] wbs_sel_i   = 2'b11;
-    wire        wbs_stb_i   = (PADDR[15:8] != 8'h0F) & PSEL & PENABLE;
-    wire        wbs_ack_o;
-    wire        wbs_cyc_i   = (PADDR[15:8] != 8'h0F) & PSEL;
+    wire                clk         = PCLK;
+    wire                rst         = ~PRESETn;
+    wire [ 2:0]         wbs_adr_i   = PADDR[3:1];
+    wire [15:0]         wbs_dat_i   = PWDATA[15:0];
+    wire [15:0]         wbs_dat_o;
+    wire                wbs_we_i    = PWRITE; 
+    wire  [1:0]         wbs_sel_i   = 2'b11;
+    wire                apb_valid	= PSEL & PENABLE;
+    wire                apb_we	    = PWRITE & apb_valid;
+    wire                wbs_stb_i   = (PADDR[15:8] != 8'h0F) & apb_valid;
+    wire                wbs_ack_o;
+    wire                wbs_cyc_i   = (PADDR[15:8] != 8'h0F) & PSEL;
 
-    wire [15:0] flags;
-    reg [8:0]       IM_REG;
-    wire [8:0]      RIS_REG = {flags[15:8], flags[3]};
-    wire [8:0]      MIS_REG = RIS_REG & IM_REG;
-    reg apb_wr_ack;
-    reg apb_rd_ack;
+    wire [15:0]         flags;
+    reg  [ 8:0]         IM_REG;
+    wire [ 8:0]         RIS_REG     = {flags[15:8], flags[3]};
+    wire [ 8:0]         MIS_REG     = RIS_REG & IM_REG;
+    
+    reg                 apb_wr_ack;
+    reg                 apb_rd_ack;
 
     assign PREADY = wbs_ack_o | apb_wr_ack | apb_rd_ack;
     assign PRDATA = (PADDR[15:8] != 8'h0F)          ? {16'b0, wbs_dat_o}:
@@ -121,13 +122,7 @@ module APB2I2C #
 
         .flags(flags)
     );
-
-    // Interrupts Handeling
-
-    wire		    apb_valid	= PSEL & PENABLE;
-	wire		    apb_we	= PWRITE & apb_valid;
-    
-
+ 
     always @(posedge PCLK or negedge PRESETn) if(~PRESETn) IM_REG <= 0;
                                         else if(apb_we & (PADDR[15:0]==IM_REG_ADDR)) begin
                                             IM_REG <= PWDATA[9-1:0];
@@ -140,6 +135,5 @@ module APB2I2C #
                                         end
 
     assign i2c_irq = |MIS_REG;
-
 
 endmodule
