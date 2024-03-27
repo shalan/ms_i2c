@@ -76,8 +76,8 @@ module APB2I2C # (
     wire [15:0]         wbs_dat_o;
     wire                wbs_we_i    = PWRITE; 
     wire  [1:0]         wbs_sel_i   = 2'b11;
-    wire		        apb_valid	= PSEL & PENABLE;
-	wire		        apb_we	    = PWRITE & apb_valid;
+    wire                apb_valid	= PSEL & PENABLE;
+    wire                apb_we	    = PWRITE & apb_valid;
     wire                wbs_stb_i   = (PADDR[15:8] != 8'h0F) & apb_valid;
     wire                wbs_ack_o;
     wire                wbs_cyc_i   = (PADDR[15:8] != 8'h0F) & PSEL;

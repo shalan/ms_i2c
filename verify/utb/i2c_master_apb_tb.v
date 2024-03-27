@@ -43,11 +43,11 @@ module i2c_master_apb_tb;
     tri1     sda_pin;
 
     assign  scl_pin = ~i2c_scl_o ? 1'b0 : 1'bz;
-    assign  scl_i = scl_pin;
+    assign  i2c_scl_i = scl_pin;
     assign  sda_pin = ~i2c_sda_o ? 1'b0 : 1'bz;
     assign  i2c_sda_i = sda_pin;
     
-    i2c_master_apb MUV (
+    APB2I2C MUV (
         .PCLK(PCLK),
         .PRESETn(PRESETn),
 
@@ -60,12 +60,12 @@ module i2c_master_apb_tb;
         .PRDATA(PRDATA),
 
         // I2C interface
-        .i2c_scl_i(i2c_scl_i),
-        .i2c_scl_o(i2c_scl_o),
-        .i2c_scl_t(i2c_scl_t),
-        .i2c_sda_i(i2c_sda_i),
-        .i2c_sda_o(i2c_sda_o),
-        .i2c_sda_t(i2c_sda_t)
+        .scl_i(i2c_scl_i),
+        .scl_o(i2c_scl_o),
+        .scl_oen_o(i2c_scl_t),
+        .sda_i(i2c_sda_i),
+        .sda_o(i2c_sda_o),
+        .sda_oen_o(i2c_sda_t)
     );
 
     M24AA64 I2C_SLAVE (
